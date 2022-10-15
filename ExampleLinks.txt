@@ -1,5 +1,0 @@
-Client inspiration
-https://stackoverflow.com/questions/15268760/upload-file-to-ftp-using-c-sharp
-
-Server inspiration
-https://www.codeproject.com/Articles/380769/Creating-an-FTP-Server-in-Csharp-with-IPv6-Support
