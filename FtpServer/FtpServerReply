@@ -1,0 +1,84 @@
+using System.Net;
+
+public class FtpServerReply
+{
+    public class PositivePreliminary_1xx
+    {
+        public const string RestartMarker_110 = "110 Restart marker reply.";
+        public static string ReadyIn_120(uint numMinutes)
+        {
+            if (numMinutes < 1000)
+                return "120 Service ready in " + numMinutes.ToString().PadLeft(3, '0') + " minutes.";
+            else
+                throw new ArgumentOutOfRangeException("Number of minutes must be less than 1000");
+        }
+        public const string AlreadyOpen_125 = "125 Data connection already open; transfer starting.";
+        public const string FileStatusOK_150 = "150 File status okay; about to open data connection.";
+    }
+    public class PositiveCompletion_2xx
+    {
+        public const string NotImplemented_202 = "202 Command not implemented, superfluous at this site.";
+        public const string OK_200 = "200 Command okay.";
+        public static string SystemStatus_211(string statusMsg)
+        {
+            return "211 System status: " + statusMsg + ".";
+        }
+        public static string DirectoryStatus_212(string statusMsg)
+        {
+            return "212 Directory status: " + statusMsg + ".";
+        }
+        public static string FileStatus_213(string statusMsg)
+        {
+            return "213 File status: " + statusMsg + ".";
+        }
+        public static string Help_214(string helpReply)
+        {
+            return "214 " + helpReply + ".";
+        }
+        public const string Ready_220 = "220 Service ready for new user.";
+        public const string ClosingCntrl_221 = "221 Service closing control connection.";
+        public const string DataConnOpen_225 = "225 Data connection open; no transfer in progress.";
+        public const string ClosingData_226 = "226 Closing data connection.";
+        public static string EnteringPasv(IPAddress IpAddress, short port)
+        {
+            byte[] address = IpAddress.GetAddressBytes();
+            byte[] portArray = BitConverter.GetBytes(port);
+            return string.Format("227 Entering Passive Mode ({0},{1},{2},{3},{4},{5}).",
+                      address[0], address[1], address[2], address[3], portArray[0], portArray[1]);
+        }
+        public const string UserLoggedIn_230 = "230 User logged in, proceed.";
+        public const string FileActionCompleted_250 = "250 Requested file action okay, completed.";
+        public static string PathNameCreated_257(string pathName)
+        {
+            return "257 " + pathName + " created.";
+        }       
+    }
+    public class PositiveIntermediate_3xx
+    {
+        public const string UserNameOkay_331 = "331 User name okay, need password.";
+        public const string NeedAccount_332 = "332 Need account for login.";
+        public const string PendingFutherInfo_350 = "350 Requested file action pending further information.";
+    }
+    public class TransientNegative_4xx
+    {
+        public const string ServiceNotAvailable_421 = "421 Service not available, closing control connection.";
+        public const string CantOpenConn_425 = "425 Can't open data connection.";
+        public const string ConnClosed_426 = "426 Connection closed; transfer aborted.";
+        public const string FileUnavailable_450 = "450 Requested file action not taken. File unavailable (e.g., file busy).";
+        public const string LocalErrorInProc_451 = "451 Requested action aborted. Local error in processing.";
+        public const string InsufficientStorage_452 = "452 Requested action not taken. Insufficient storage space in system.";
+    }
+    public class PermanentNegative_5xx
+    {
+        public const string SytnaxErrorCmd_500 = "500 Syntax error, command unrecognized.";
+        public const string SyntaxErrorParam_501 = "501 Syntax error in parameters or arguments.";
+        public const string CmdNotImplemented_502 = "502 Command not implemented.";
+        public const string BadCmdSequence_503 = "503 Bad sequence of commands.";
+        public const string ParamNotImplemented_504 = "504 Command not implemented for that parameter.";
+        public const string NotLoggedIn_530  = "530 Not logged in.";
+        public const string NeedAccount_532 = "532 Need account for storing files.";
+        public const string FileUnavailable_550 = "550 Requested action not taken. File unavailable (e.g., file not found, no access).";
+        public const string InsufficientStorage_552 = "552 Requested file action aborted. Exceeded storage allocation.";
+        public const string FilenameNotAllowed_553 = "553 Requested action not taken. File name not allowed.";
+    }
+}
