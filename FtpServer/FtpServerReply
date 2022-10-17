@@ -43,15 +43,25 @@ public class FtpServerReply
         {
             byte[] address = IpAddress.GetAddressBytes();
             byte[] portArray = BitConverter.GetBytes(port);
+            if (BitConverter.IsLittleEndian)
+                Array.Reverse(portArray);
             return string.Format("227 Entering Passive Mode ({0},{1},{2},{3},{4},{5}).",
                       address[0], address[1], address[2], address[3], portArray[0], portArray[1]);
         }
         public const string UserLoggedIn_230 = "230 User logged in, proceed.";
         public const string FileActionCompleted_250 = "250 Requested file action okay, completed.";
+        public static string UniqueFileCreated_250(string pathName)
+        {
+            return "250 " + pathName;
+        }
         public static string PathNameCreated_257(string pathName)
         {
             return "257 " + pathName + " created.";
-        }       
+        }
+        public static string PrintWorkingDirectory_257(string pathName)
+        {
+            return "257 working dir is " + pathName + ".";
+        }
     }
     public class PositiveIntermediate_3xx
     {
@@ -75,7 +85,7 @@ public class FtpServerReply
         public const string CmdNotImplemented_502 = "502 Command not implemented.";
         public const string BadCmdSequence_503 = "503 Bad sequence of commands.";
         public const string ParamNotImplemented_504 = "504 Command not implemented for that parameter.";
-        public const string NotLoggedIn_530  = "530 Not logged in.";
+        public const string NotLoggedIn_530 = "530 Not logged in.";
         public const string NeedAccount_532 = "532 Need account for storing files.";
         public const string FileUnavailable_550 = "550 Requested action not taken. File unavailable (e.g., file not found, no access).";
         public const string InsufficientStorage_552 = "552 Requested file action aborted. Exceeded storage allocation.";

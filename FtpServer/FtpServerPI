@@ -1,0 +1,142 @@
+using System.Net.Sockets;
+using System.Security.Cryptography;
+using System.Net;
+using System.Text;
+
+public class FtpServerPI
+{
+    private StreamReader? reader;
+    private StreamWriter? writer;
+    private TcpClient? client;
+    private string username = "";
+    public event EventHandler? ConnectionEnded;
+    private bool disposed = false;
+    public FtpServerPI(TcpClient client)
+    {
+        this.client = client;
+        this.reader = new StreamReader(client.GetStream(), Encoding.ASCII);
+        this.writer = new StreamWriter(client.GetStream(), Encoding.ASCII);
+    }
+    public void Start()
+    {
+        WriteMsg(FtpServerReply.PositiveCompletion_2xx.Ready_220);
+
+        string line = null;
+        System.Console.WriteLine("Ready for communication");
+        while (!string.IsNullOrEmpty(line = reader.ReadLine()))
+        {
+            if (handleRequestCmd(line).StartsWith("221"))
+                break; //Quit
+        }
+    }
+    private string handleRequestCmd(string requestLine)
+    {
+        Console.WriteLine(requestLine);
+        string response = null;
+
+        string[] command = requestLine.Split(' ');
+
+        string cmd = command[0].ToUpperInvariant();
+        string arguments = command.Length > 1 ? requestLine.Substring(command[0].Length + 1) : "";
+        switch (cmd)
+        {
+            case "USER":
+                response = User(arguments);
+                break;
+            case "PASS":
+                response = Password(arguments);
+                break;
+            case "PWD":
+                response = FtpServerReply.PositiveCompletion_2xx.PrintWorkingDirectory_257("\"/\"");
+                break;
+            case "QUIT":
+                response = FtpServerReply.PositiveCompletion_2xx.ClosingCntrl_221;
+                break;
+            case "TYPE":
+                response = FtpServerReply.PositiveCompletion_2xx.OK_200;
+                break;
+            case "PORT":
+                response = Port(arguments);
+                break;
+            case "STOR":
+                response = FtpServerReply.PositiveCompletion_2xx.OK_200;
+                break;
+            case "PASV":
+                response = Pasv(client);
+                break;
+            default:
+                response = FtpServerReply.PermanentNegative_5xx.CmdNotImplemented_502;
+                break;
+        }
+        WriteMsg(response);
+        return response;
+    }
+    public void WriteMsg(string msg)
+    {
+        if (disposed)
+            throw new ObjectDisposedException("FtpConnection");
+        if (writer == null)
+            throw new FieldAccessException("StreamWriter for instance is unavailable");
+        writer.WriteLine(msg);
+    }
+
+    private void Dispose()
+    {
+        reader?.Close();
+        writer?.Close();
+        client?.Close();
+        client?.Dispose();
+        client = null;
+        reader = null;
+        writer = null;
+        disposed = true;
+        ConnectionEnded?.Invoke(this, EventArgs.Empty);
+    }
+    private string User(string username)
+    {
+        if (!string.IsNullOrEmpty(username))
+        {
+            this.username = username;
+
+            return FtpServerReply.PositiveIntermediate_3xx.UserNameOkay_331;
+        }
+        else
+            return FtpServerReply.PermanentNegative_5xx.NotLoggedIn_530;
+    }
+    private string Password(string password)
+    {
+        if (true)
+        {
+            return FtpServerReply.PositiveCompletion_2xx.UserLoggedIn_230;
+        }
+        else
+        {
+            return FtpServerReply.PermanentNegative_5xx.NotLoggedIn_530;
+        }
+    }
+    private string Port(string port)
+    {
+        //TODO: Implement PORT cmd handling
+        // int[] IpAddress = new int[4];
+        // byte[] Port = new byte[2];
+        // if (BitConverter.IsLittleEndian)
+        //     Array.Reverse(Port);
+        // dataIp = String.Join('.', IpAddress.Select(x => x.ToString()));
+        // dataPort = BitConverter.ToInt16(Port);
+        // return FtpServerReply.PositiveCompletion_2xx.OK_200;
+        return FtpServerReply.PermanentNegative_5xx.CmdNotImplemented_502;
+    }
+    private string Pasv(TcpClient client)
+    {
+        //TODO: Implement PASV cmd handling
+        // IPAddress localAddress = ((IPEndPoint)client.Client.LocalEndPoint).Address;
+
+        // _passiveListener = new TcpListener(localAddress, 0);
+        // _passiveListener.Start();
+
+        // IPEndPoint localEndpoint = ((IPEndPoint)_passiveListener.LocalEndpoint);
+
+        // return FtpServerReply.PositiveCompletion_2xx.EnteringPasv(localEndpoint.Address, (short)localEndpoint.Port);
+        return FtpServerReply.PermanentNegative_5xx.CmdNotImplemented_502;
+    }
+}
