@@ -13,6 +13,9 @@ public class FtpServerPI
     private bool disposed = false;
     public FtpServerPI(TcpClient client)
     {
+        if(client==null){
+            throw new NullReferenceException("client cannot be null");
+        }
         this.client = client;
         this.reader = new StreamReader(client.GetStream(), Encoding.ASCII);
         this.writer = new StreamWriter(client.GetStream(), Encoding.ASCII);
@@ -32,7 +35,7 @@ public class FtpServerPI
     private string handleRequestCmd(string requestLine)
     {
         Console.WriteLine(requestLine);
-        string response = null;
+        string response = "";
 
         string[] command = requestLine.Split(' ');
 
@@ -62,7 +65,10 @@ public class FtpServerPI
                 response = FtpServerReply.PositiveCompletion_2xx.OK_200;
                 break;
             case "PASV":
-                response = Pasv(client);
+                if(client!=null)
+                    response = Pasv(client);
+                else
+                    response = FtpServerReply.PermanentNegative_5xx.NotLoggedIn_530;
                 break;
             default:
                 response = FtpServerReply.PermanentNegative_5xx.CmdNotImplemented_502;

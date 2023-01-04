@@ -6,12 +6,12 @@ using System.Text;
 public class FtpServer
 {
     public TcpListener? listener { get; private set; }
-    private List<FtpConnection> connections = new List<FtpConnection>();
-    public FtpConnection GetConnection(int index)
+    private List<FtpServerPI> connections = new List<FtpServerPI>();
+    public FtpServerPI GetConnection(int index)
     {
         return connections[index];
     }
-    public FtpConnection[] GetConnections(){
+    public FtpServerPI[] GetConnections(){
         return connections.ToArray();
     }
     public FtpServer()
@@ -87,7 +87,7 @@ public class FtpServer
     }
     private void HandleAcceptTcpClient(IAsyncResult result)
     {
-        var conn = new FtpConnection(listener.EndAcceptTcpClient(result));
+        var conn = new FtpServerPI(listener.EndAcceptTcpClient(result));
         System.Console.WriteLine("Client connected!");
     }
 }
